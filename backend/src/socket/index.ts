@@ -1,5 +1,6 @@
 import http from "http";
 import { Server } from "socket.io";
+import { registerEvents } from "./events";
 
 let io: Server;
 
@@ -10,6 +11,9 @@ export function initSocket(server: http.Server) {
       methods: ["GET", "POST"],
     },
   });
+
+  // Register socket event handlers
+  registerEvents(io);
 
   return io;
 }

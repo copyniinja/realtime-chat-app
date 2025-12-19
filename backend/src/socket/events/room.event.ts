@@ -13,7 +13,7 @@ export default function roomEvents(io: Server, socket: Socket) {
     // Emit an event to all group users except the joining user
     socket
       .to(payload.roomId)
-      .emit("user:joined", { userId: socket.data.user.id });
+      .emit("user:joined", { username: payload.username });
   });
 
   // Leave room
