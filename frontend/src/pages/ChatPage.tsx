@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 import { formatTime } from "../utils/formatTime";
 
 type Message = {
-  id: number;
+  id: string;
   text: string;
   time: string;
   type: "chat" | "system";
@@ -22,6 +22,8 @@ export default function ChatPage({
 }) {
   const messageRef = useRef<HTMLInputElement>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
+  const typingTimeout = useRef<ReturnType<typeof setTimeout>>(null);
 
   useEffect(() => {
     socket.emit("room:join", { roomId, username });
@@ -31,7 +33,7 @@ export default function ChatPage({
       setMessages((m) => [
         ...m,
         {
-          id: m.length + 1,
+          id: crypto.randomUUID(),
           text: `${joinedUser} joined the room`,
           time: formatTime(),
           type: "system",
@@ -51,9 +53,53 @@ export default function ChatPage({
       ]);
     });
 
+    // typing start
+    socket.on("typing:start", (user: string) => {
+      if (user === username) return;
+
+      setTypingUsers((users) => {
+        const newUsers = new Set(users);
+        newUsers.add(user);
+        return newUsers;
+      });
+    });
+
+    // typing stop
+    socket.on("typing:stop", (user: string) => {
+      setTypingUsers((users) => {
+        const newUsers = new Set(users);
+        newUsers.delete(user);
+        return newUsers;
+      });
+    });
+
+    // user left
+    socket.on("user:left", ({ username: leftUser }) => {
+      setMessages((m) => [
+        ...m,
+        {
+          id: crypto.randomUUID(),
+          text: `${leftUser} left the room`,
+          time: formatTime(),
+          type: "system",
+        },
+      ]);
+
+      //remove from typing list
+      setTypingUsers((users) => {
+        const updated = new Set(users);
+        updated.delete(leftUser);
+        return updated;
+      });
+    });
+
     return () => {
+      socket.emit("room:leave", { roomId, username });
       socket.off("user:joined");
+      socket.off("user:left");
       socket.off("chat:receive");
+      socket.off("typing:start");
+      socket.off("typing:stop");
     };
   }, [roomId, username]);
 
@@ -64,7 +110,7 @@ export default function ChatPage({
     messageRef.current!.value = "";
 
     const newMessage: Message = {
-      id: messages.length + 1,
+      id: crypto.randomUUID(),
       text,
       time: formatTime(),
       user: username,
@@ -76,6 +122,16 @@ export default function ChatPage({
     setMessages((m) => [...m, newMessage]);
   };
 
+  const handleTyping = () => {
+    socket.emit("typing:start", { roomId, username });
+    if (typingTimeout.current) {
+      clearTimeout(typingTimeout.current);
+    }
+    typingTimeout.current = setTimeout(() => {
+      socket.emit("typing:stop", { roomId, username });
+    }, 1000);
+  };
+
   return (
     <div className="min-h-screen p-1 flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600">
       <div className="w-full max-w-3xl h-[85vh] bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden">
@@ -84,6 +140,12 @@ export default function ChatPage({
           <h2 className="text-lg font-semibold text-gray-800">
             Room: <span className="text-indigo-600">{roomId}</span>
           </h2>
+          {typingUsers.size > 0 && (
+            <div className="  text-xs text-gray-500 italic">
+              {[...typingUsers].join(", ")}{" "}
+              {typingUsers.size === 1 ? "is" : "are"} typing...
+            </div>
+          )}
         </div>
 
         {/* Messages */}
@@ -102,11 +164,11 @@ export default function ChatPage({
               >
                 <div
                   className={`max-w-[70%] rounded-2xl px-4 py-2 shadow
-                    ${
-                      msg.isMe
-                        ? "bg-indigo-600 text-white rounded-br-none"
-                        : "bg-white text-gray-800 rounded-bl-none"
-                    }`}
+                      ${
+                        msg.isMe
+                          ? "bg-indigo-600 text-white rounded-br-none"
+                          : "bg-white text-gray-800 rounded-bl-none"
+                      }`}
                 >
                   <div className="text-xs font-semibold mb-1 opacity-80">
                     {msg.isMe ? "You" : msg.user}
@@ -128,13 +190,14 @@ export default function ChatPage({
             type="text"
             placeholder="Type a message..."
             className="flex-1 rounded-full border border-gray-300 px-4 py-2
-                       focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            onInput={handleTyping}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
           />
           <button
             onClick={handleSend}
             className="bg-indigo-600 text-white px-6 py-2 rounded-full
-                       hover:bg-indigo-700 transition font-medium"
+                        hover:bg-indigo-700 transition font-medium"
           >
             Send
           </button>

@@ -12,6 +12,13 @@ export function onConnection(io: Server, socket: Socket) {
   typingEvents(io, socket);
 
   socket.on("disconnect", () => {
+    const { roomId, username } = socket.data;
+    console.log(roomId, username);
+
+    if (roomId && username) {
+      socket.to(roomId).emit("user:left", { username });
+    }
+
     console.log(`Client disconnected: ${socket.id}`);
   });
 }

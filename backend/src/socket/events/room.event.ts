@@ -3,7 +3,9 @@ import { Server, Socket } from "socket.io";
 export default function roomEvents(io: Server, socket: Socket) {
   // Join room
   socket.on("room:join", (payload) => {
-    // Verify that user belongs to this room
+    // Save the data
+    socket.data.roomId = payload.roomId;
+    socket.data.username = payload.username;
 
     //
     socket.join(payload.roomId);
@@ -17,15 +19,9 @@ export default function roomEvents(io: Server, socket: Socket) {
   });
 
   // Leave room
-  socket.on("room:leave", (payload) => {
-    socket.leave(payload.roomId);
+  socket.on("room:leave", ({ roomId, username }) => {
+    socket.leave(roomId);
 
-    // Emit an event to left user
-    socket.emit("room:left", payload.roomId);
-
-    // Emit an event to all other group users excepts left user
-    socket.to(payload.roomId).emit("user:left", {
-      userId: socket.data.user.id,
-    });
+    socket.to(roomId).emit("user:left", { username });
   });
 }

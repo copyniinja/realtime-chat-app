@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ChatPage from "./pages/ChatPage";
 import Homepage from "./pages/Homepage";
+import { generateUsername } from "./utils/generateUsername";
 
 function App() {
   const [joined, isJoined] = useState(false);
@@ -37,7 +38,9 @@ function App() {
             onJoin={handleJoin}
           />
         )}
-        {joined && <ChatPage roomId={roomId} username={username} />}
+        {joined && (
+          <ChatPage roomId={roomId} username={generateUsername(username)} />
+        )}
       </div>
     </>
   );
