@@ -132,14 +132,31 @@ export default function ChatPage({
     }, 1000);
   };
 
+  const handleLeaveRoom = () => {
+    socket.emit("room:leave", { roomId, username });
+
+    setMessages([]);
+    setTypingUsers(new Set());
+
+    window.location.href = "/";
+  };
+
   return (
     <div className="min-h-screen p-1 flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600">
       <div className="w-full max-w-3xl h-[85vh] bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-300 bg-gray-50">
-          <h2 className="text-lg font-semibold text-gray-800">
-            Room: <span className="text-indigo-600">{roomId}</span>
-          </h2>
+          <div className="flex justify-between">
+            <h2 className="text-lg font-semibold text-gray-800">
+              Room: <span className="text-indigo-600">{roomId}</span>
+            </h2>
+            <button
+              onClick={handleLeaveRoom}
+              className="bg-red-500 text-white px-3 py-1  text-xs rounded-xl hover:bg-red-600"
+            >
+              Leave
+            </button>
+          </div>
           {typingUsers.size > 0 && (
             <div className="  text-xs text-gray-500 italic">
               {[...typingUsers].join(", ")}{" "}
