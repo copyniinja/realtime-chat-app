@@ -117,3 +117,8 @@ npm run dev
 4. Start chatting instantly!
 5. See typing indicators and system messages when users join or leave.
 6. Use the **Leave Room** button to exit the chat safely.
+
+## Live Demo
+
+- **Frontend (Vercel):** [https://realtime-chat-app-smoky-tau.vercel.app](https://realtime-chat-app-smoky-tau.vercel.app)
+- **Backend (Render):** [https://realtime-chat-app-1-8iau.onrender.com](https://realtime-chat-app-1-8iau.onrender.com)
