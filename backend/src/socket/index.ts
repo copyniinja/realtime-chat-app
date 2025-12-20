@@ -7,7 +7,7 @@ let io: Server;
 export function initSocket(server: http.Server) {
   io = new Server(server, {
     cors: {
-      origin: "*",
+      origin: process.env.FRONTEND_URL,
       methods: ["GET", "POST"],
     },
   });
