@@ -22,6 +22,7 @@ export default function ChatPage({
   username: string;
 }) {
   const messageRef = useRef<HTMLInputElement>(null);
+  const messageEnd = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: crypto.randomUUID(),
@@ -117,6 +118,12 @@ export default function ChatPage({
     };
   }, [roomId, username]);
 
+  // Scroll to the latest message
+  useEffect(() => {
+    messageEnd.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // Handler
   const handleSend = () => {
     const text = messageRef.current?.value;
     if (!text) return;
@@ -215,6 +222,7 @@ export default function ChatPage({
               </div>
             )
           )}
+          <div ref={messageEnd} />
         </div>
 
         {/* Input */}

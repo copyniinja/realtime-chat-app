@@ -12,6 +12,7 @@ A real-time chat application built entirely with **TypeScript** on both frontend
 - **Unique usernames** – avoids conflicts if multiple users pick the same name.
 - **Responsive design** – works on both desktop and mobile.
 - **Online users count** – displays how many users are currently connected in the room and updates in real time.
+- **Automatic scrolling** – chat view always scrolls to the latest message.
 
 ---
 
