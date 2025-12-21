@@ -1,6 +1,6 @@
 # Real-Time Chat App
 
-A real-time chat application built entirely with **TypeScript** on both frontend and backend. Users can join rooms, chat instantly, see who is typing, and get notified when users join or leave a room.
+A real-time chat application built entirely with **TypeScript** on both frontend and backend. Users can join rooms, chat instantly, see who is typing, view how many users are currently online in a room, and get notified when users join or leave a room.
 
 ---
 
@@ -11,6 +11,7 @@ A real-time chat application built entirely with **TypeScript** on both frontend
 - **Join/Leave notifications** – system messages appear when users join or leave.
 - **Unique usernames** – avoids conflicts if multiple users pick the same name.
 - **Responsive design** – works on both desktop and mobile.
+- **Online users count** – displays how many users are currently connected in the room and updates in real time.
 
 ---
 

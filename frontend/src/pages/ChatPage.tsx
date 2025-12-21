@@ -22,9 +22,17 @@ export default function ChatPage({
   username: string;
 }) {
   const messageRef = useRef<HTMLInputElement>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: crypto.randomUUID(),
+      text: `You joined the room`,
+      time: formatTime(),
+      type: "system",
+    },
+  ]);
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
   const typingTimeout = useRef<ReturnType<typeof setTimeout>>(null);
+  const [userCount, setUserCount] = useState(0);
 
   useEffect(() => {
     socket.emit("room:join", { roomId, username });
@@ -94,6 +102,11 @@ export default function ChatPage({
       });
     });
 
+    // User counts
+    socket.on("room:userCount", (count) => {
+      setUserCount(count);
+    });
+
     return () => {
       socket.emit("room:leave", { roomId, username });
       socket.off("user:joined");
@@ -150,6 +163,9 @@ export default function ChatPage({
           <div className="flex justify-between">
             <h2 className="text-lg font-semibold text-gray-800">
               Room: <span className="text-indigo-600">{roomId}</span>
+              <p className="text-emerald-700 text-sm">
+                {userCount} {userCount > 1 ? "users" : "user"} online
+              </p>
             </h2>
             <button
               onClick={handleLeaveRoom}
@@ -172,7 +188,7 @@ export default function ChatPage({
             msg.type === "system" ? (
               <div key={msg.id} className="flex justify-center">
                 <span className="text-xs text-gray-500 bg-gray-200 px-3 py-1 rounded-full">
-                  {msg.text}
+                  {msg.text} - {msg.time}
                 </span>
               </div>
             ) : (

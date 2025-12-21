@@ -1,4 +1,5 @@
 import { Server, Socket } from "socket.io";
+import { emitUserCount } from "../emitUserCount";
 
 export default function roomEvents(io: Server, socket: Socket) {
   // Join room
@@ -9,6 +10,11 @@ export default function roomEvents(io: Server, socket: Socket) {
 
     //
     socket.join(payload.roomId);
+
+    // Emit total users count
+    emitUserCount(io, payload.roomId);
+    const room = io.sockets.adapter.rooms.get(payload.roomId);
+    socket.emit("room:userCount", room ? room.size : 1);
 
     // Emit an event to added user
     socket.emit("room:joined", payload.roomId);
@@ -23,5 +29,7 @@ export default function roomEvents(io: Server, socket: Socket) {
     socket.leave(roomId);
 
     socket.to(roomId).emit("user:left", { username });
+
+    emitUserCount(io, roomId);
   });
 }
