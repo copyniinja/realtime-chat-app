@@ -1,0 +1,32 @@
+# Node modules (installed inside container)
+node_modules
+
+# Build output (created inside Docker)
+dist
+
+# Environment files
+.env
+.env.*
+
+# Logs
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# OS / Editor files
+.DS_Store
+.vscode
+.idea
+
+# Git
+.git
+.gitignore
+
+# Docker files (optional but recommended)
+Dockerfile
+docker-compose.yml
+
+# Test files (if any)
+tests
+__tests__
+coverage
